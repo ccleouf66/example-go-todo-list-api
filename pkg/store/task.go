@@ -66,9 +66,7 @@ func (ms MongoStore) DeleteTask(ctx context.Context, in types.Task) error {
 	collection := ms.DataBase.Collection("tasks")
 
 	// Select the task with it's unique id
-	filter := bson.A{
-		bson.M{"_id": in.Id},
-	}
+	filter := bson.M{"_id": in.Id}
 
 	res := collection.FindOneAndDelete(c, filter)
 
