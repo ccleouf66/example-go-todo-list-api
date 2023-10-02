@@ -58,3 +58,19 @@ func (ms MongoStore) CreateTask(ctx context.Context, in types.Task) (*types.Task
 
 	return nil, fmt.Errorf("mongo store: error decoding ObjectID for %s (%s)", in.Name, res.InsertedID)
 }
+
+func (ms MongoStore) DeleteTask(ctx context.Context, in types.Task) error {
+	c, cancel := context.WithTimeout(ctx, time.Second*1)
+	defer cancel()
+
+	collection := ms.DataBase.Collection("tasks")
+
+	// Select the task with it's unique id
+	filter := bson.A{
+		bson.M{"_id": in.Id},
+	}
+
+	res := collection.FindOneAndDelete(c, filter)
+
+	return res.Err()
+}

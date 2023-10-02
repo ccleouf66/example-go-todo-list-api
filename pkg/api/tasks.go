@@ -76,4 +76,20 @@ func (h *TaskHandler) createTask(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, string(b))
 
 }
-func (h *TaskHandler) deleteTask(w http.ResponseWriter, r *http.Request) {}
+func (h *TaskHandler) deleteTask(w http.ResponseWriter, r *http.Request) {
+	var taskToDelete types.Task
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&taskToDelete)
+	if err != nil {
+		returnError(w, err)
+		return
+	}
+
+	err = h.Store.DeleteTask(r.Context(), taskToDelete)
+	if err != nil {
+		returnError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
