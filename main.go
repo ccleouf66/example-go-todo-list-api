@@ -44,10 +44,15 @@ func main() {
 		Store: db,
 	}
 
+	metricsHandler := api.NewLetricsHandler()
+
 	// Public Routes
 	r.Group(func(r chi.Router) {
+		r.Use(metricsHandler.IncrementTotalQueryMetric)
 		r.Route("/task", taskHandler.ServeHTTP)
 	})
+
+	r.Get("/metrics", metricsHandler.GetMetrics())
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
