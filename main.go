@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/codenito/example-go-todo-list-api/pkg/api"
 	"github.com/codenito/example-go-todo-list-api/pkg/store"
@@ -53,6 +54,14 @@ func main() {
 	})
 
 	r.Get("/metrics", metricsHandler.GetMetrics())
+
+	// Update fake metric
+	go func() {
+		for {
+			metricsHandler.RandDesiredPodNumber()
+			time.Sleep(30 * time.Second)
+		}
+	}()
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }

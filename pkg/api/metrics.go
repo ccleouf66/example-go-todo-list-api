@@ -1,6 +1,7 @@
 package api
 
 import (
+	"math/rand"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -9,7 +10,8 @@ import (
 )
 
 type metricsHandler struct {
-	opsProcessed prometheus.Counter
+	opsProcessed  prometheus.Counter
+	desiredPodNum prometheus.Gauge
 }
 
 func NewLetricsHandler() metricsHandler {
@@ -17,6 +19,10 @@ func NewLetricsHandler() metricsHandler {
 		opsProcessed: promauto.NewCounter(prometheus.CounterOpts{
 			Name: "todoapi_query_total",
 			Help: "The total number of query",
+		}),
+		desiredPodNum: promauto.NewGauge(prometheus.GaugeOpts{
+			Name: "todoapi_desired_pod",
+			Help: "The desired number of api pod",
 		}),
 	}
 }
@@ -30,4 +36,9 @@ func (h *metricsHandler) IncrementTotalQueryMetric(next http.Handler) http.Handl
 		h.opsProcessed.Inc()
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (h *metricsHandler) RandDesiredPodNumber() {
+	r := 1 + rand.Float64()*(20-1)
+	h.desiredPodNum.Set(r)
 }
